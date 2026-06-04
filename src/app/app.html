@@ -1,0 +1,1024 @@
+<div class="app-container">
+  <!-- Sidebar Navigation (Hidden during print) -->
+  <aside class="sidebar no-print">
+    <div class="sidebar-logo">
+      <svg class="wrench-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h2>Garage <span>Bill System</span></h2>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="activeView() === 'create' || activeView() === 'edit'" (click)="showCreateView()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Generate Bill
+      </button>
+      <!-- Dashboard removed -->
+      <button class="nav-item" [class.active]="activeView() === 'inventory'" (click)="showInventory()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z"/>
+          <path d="M9 5V3h6v2M9 17v2h6v-2M6 11h1M17 11h1"/>
+        </svg>
+        Inventory
+      </button>
+      <button class="nav-item" [class.active]="activeView() === 'report'" (click)="showReportView()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3h18v4H3z"/><path d="M3 13h18v8H3z"/><path d="M7 7v6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Reports
+      </button>
+      <button class="nav-item" [class.active]="activeView() === 'settings'" (click)="showSettings()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/>
+        </svg>
+        Settings
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar">AM</div>
+        <div class="user-info">
+          <h4>Admin Panel</h4>
+          <p>Superuser</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+  <header class="top-bar no-print" *ngIf="activeView() !== 'report'">
+    <div class="welcome-section">
+        <h1>Garage Billing Portal</h1>
+        <p>Manage repair records, customer details, and invoices</p>
+      </div>
+      <div class="action-section">
+        @if (activeView() === 'inventory') {
+          <button class="btn btn-primary" (click)="showRestockView()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Restock
+          </button>
+        }
+        @if (activeView() !== 'inventory' && activeView() !== 'restock') {
+          <button class="btn btn-primary" (click)="showCreateView()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Create New Bill
+          </button>
+        }
+      </div>
+    </header>
+
+    <!-- VIEWS CONTAINER -->
+    <div class="view-content">
+
+      
+
+      <!-- ================= CREATE/EDIT FORM VIEW ================= -->
+      @if (activeView() === 'create' || activeView() === 'edit') {
+        <section class="form-view animate-slide-in no-print">
+          <div class="card form-card">
+            
+            <div class="form-card-header">
+              <div class="header-text">
+                <h2>{{ activeView() === 'create' ? 'Generate Service Invoice' : 'Modify Service Invoice' }}</h2>
+                <p>Fill out customer info, vehicle data and repair tasks</p>
+              </div>
+              <button class="btn btn-outline btn-sm" (click)="showReportView()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Reports
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <!-- Customer details (Column 1) -->
+              <div class="form-section">
+                <div class="section-title">
+                  <div class="bullet-glow"></div>
+                  <h3>Customer Details</h3>
+                </div>
+
+                <div class="form-group">
+                  <label>Customer Name <span class="required">*</span></label>
+                  <input type="text" placeholder="e.g. Rajesh Kumar" [ngModel]="formCustomerName()" (ngModelChange)="formCustomerName.set($event)">
+                </div>
+
+                <div class="form-group">
+                  <label>Mobile Number <span class="required">*</span></label>
+                  <input type="tel" placeholder="e.g. 9876543210" [ngModel]="formMobileNo()" (ngModelChange)="formMobileNo.set($event)">
+                </div>
+
+                <div class="form-group">
+                  <label>Permanent Address</label>
+                  <textarea rows="3" placeholder="Enter customer's permanent billing address" [ngModel]="formAddress()" (ngModelChange)="formAddress.set($event)"></textarea>
+                </div>
+              </div>
+
+              <!-- Vehicle details (Column 2) -->
+              <div class="form-section">
+                <div class="section-title">
+                  <div class="bullet-glow orange"></div>
+                  <h3>Vehicle Specifications</h3>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Brand Name <span class="required">*</span></label>
+                    <input type="text" placeholder="e.g. Toyota" [ngModel]="formBrandName()" (ngModelChange)="formBrandName.set($event)">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Model & Type / Spec <span class="required">*</span></label>
+                    <input type="text" placeholder="e.g. Fortuner 2.8L" [ngModel]="formModelType()" (ngModelChange)="formModelType.set($event)">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Vehicle Number <span class="required">*</span></label>
+                    <input type="text" class="uppercase-input font-mono" placeholder="e.g. MH-12-PQ-9999" [ngModel]="formVehicleNumber()" (ngModelChange)="formVehicleNumber.set($event)">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Vehicle Kilometers (KMs Run) <span class="required">*</span></label>
+                  <input type="number" placeholder="e.g. 45200" [ngModel]="formKmsRun()" (ngModelChange)="formKmsRun.set($event)">
+                </div>
+              </div>
+            </div>
+
+            <!-- Billing Grid Section (Full Width) -->
+            <div class="form-section billing-grid-section">
+              <div class="section-title-with-actions">
+                <div class="section-title">
+                  <div class="bullet-glow green"></div>
+                  <h3>Vehicle Complaints</h3>
+                </div>
+                <button class="btn btn-outline btn-xs" (click)="addNewItem()">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;"><path d="M12 5v14M5 12h14"/></svg>
+                  Add Custom Item
+                </button>
+              </div>
+
+              <!-- Invoice Items Table -->
+              <div class="items-table-container">
+                <table class="form-items-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 40%;">Job / Spare Part Description</th>
+                      <th style="width: 8%;">Qty</th>
+                      <th style="width: 17%;">Selling Price (₹)</th>
+                      <th style="width: 17%;">Total (₹)</th>
+                      <th style="width: 5%; text-align: center;"></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    @for (item of formItems(); track item.id; let idx = $index) {
+                      <tr>
+                        <td>
+                          <!-- Select option with fallback to text or search list -->
+                          <div class="description-selector">
+                            <input type="text" placeholder="Enter service description or select below" 
+                                   [ngModel]="item.description" 
+                                   (ngModelChange)="updateItem(idx, 'description', $event)"
+                                   list="service-preset-datalist">
+                            <datalist id="service-preset-datalist">
+                              @for (preset of servicePresets; track preset.description) {
+                                <option [value]="preset.description"></option>
+                              }
+                              @for (part of spareParts(); track part.id) {
+                                <option [value]="part.name"></option>
+                              }
+                            </datalist>
+                          </div>
+                        </td>
+                        <td>
+                          <input type="number" min="1" 
+                                 [ngModel]="item.quantity" 
+                                 (ngModelChange)="updateItem(idx, 'quantity', $event)" 
+                                 class="text-center font-mono">
+                        </td>
+                        <td>
+                          <input type="number" min="0" 
+                                 [ngModel]="item.sellingPrice" 
+                                 (ngModelChange)="updateItem(idx, 'sellingPrice', $event)" 
+                                 class="text-right font-mono"
+                                 placeholder="Auto-fills on part select">
+                        </td>
+                        <td class="text-right font-mono font-bold row-total-col">
+                          {{ (item.quantity * item.sellingPrice) | currency:'INR':'symbol':'1.2-2' }}
+                        </td>
+                        <td class="text-center">
+                          <button class="btn btn-icon btn-icon-danger btn-xs" (click)="removeItem(idx)">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Summary & Terms Section -->
+            <div class="form-grid summary-grid">
+              <!-- Billing parameters -->
+              <div class="form-section">
+                <div class="section-title">
+                  <div class="bullet-glow blue"></div>
+                  <h3>Billing & Invoice Configurations</h3>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Invoice Date</label>
+                    <input type="date" [ngModel]="formDate()" (ngModelChange)="formDate.set($event)">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" [ngModel]="formDueDate()" (ngModelChange)="formDueDate.set($event)">
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Payment Status</label>
+                    <select [ngModel]="formPaymentStatus()" (ngModelChange)="formPaymentStatus.set($event)">
+                      <option value="Paid">Paid</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Unpaid">Unpaid</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Payment Method</label>
+                    <select [ngModel]="formPaymentMethod()" (ngModelChange)="formPaymentMethod.set($event)">
+                      <option value="UPI">UPI / Online</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                    </select>
+                  </div>
+                </div>
+
+                  <div class="form-group">
+                    <label>Labour Charge (₹)</label>
+                    <input type="number" min="0" placeholder="Enter labour charge" [ngModel]="formLabourCharge()" (ngModelChange)="formLabourCharge.set($event)">
+                  </div>
+
+                <div class="form-group">
+                  <label>Additional Notes / Terms</label>
+                  <textarea rows="2" placeholder="Notes printed on bill (e.g. Warranty details, parts replaced...)" [ngModel]="formNotes()" (ngModelChange)="formNotes.set($event)"></textarea>
+                </div>
+              </div>
+
+              <!-- Calculation block -->
+              <div class="form-section computation-section">
+                <div class="section-title">
+                  <div class="bullet-glow purple"></div>
+                  <h3>Calculated Summary</h3>
+                </div>
+
+                <div class="bill-breakdown">
+                  <!-- Labour Charge -->
+                  <div class="breakdown-row">
+                    <span>Labour Charge (₹):</span>
+                    <span class="font-mono">{{ formLabourCharge() | currency:'INR':'symbol':'1.2-2' }}</span>
+                  </div>
+
+                  <!-- Spare parts total (selling price × qty) -->
+                  <div class="breakdown-row">
+                    <span>Spare (Parts):</span>
+                    <span class="font-mono">{{ formSpareTotal() | currency:'INR':'symbol':'1.2-2' }}</span>
+                  </div>
+
+                  <hr class="summary-divider">
+
+                  <!-- Grand Total -->
+                  <div class="breakdown-row grand-total-row">
+                    <span>Total:</span>
+                    <span class="font-mono text-neon">{{ formGrandTotal() | currency:'INR':'symbol':'1.2-2' }}</span>
+                  </div>
+                </div>
+
+
+                <!-- Action row -->
+                <div class="form-actions-row">
+                  <button class="btn btn-outline" (click)="showReportView()">Back to Reports</button>
+                  <button class="btn btn-primary" (click)="saveInvoice()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    Save & View Invoice
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      }
+
+      <!-- ================= DETAILED INVOICE / PRINT VIEW ================= -->
+      @if (activeView() === 'view' && selectedInvoice()) {
+        <section class="invoice-view animate-fade-in">
+          
+          <!-- Command Buttons Panel (Hidden during printing) -->
+            <div class="invoice-actions no-print">
+            <button class="btn btn-outline btn-sm" (click)="showReportView()">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Reports
+            </button>
+            <div class="btn-group">
+              <button class="btn btn-outline btn-sm" (click)="editInvoice(selectedInvoice()!)">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Edit Bill
+              </button>
+              <button class="btn btn-primary btn-sm" (click)="printInvoice()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-12 0v5h12v-5M16 14h.01"/></svg>
+                Print Invoice (PDF)
+              </button>
+            </div>
+          </div>
+
+          <!-- THE PRINTABLE BILL PAGE -->
+          <div class="invoice-sheet" id="printable-invoice-sheet">
+            <!-- Sheet Header -->
+            <div class="sheet-header">
+              <div class="garage-brand">
+                <div class="sheet-logo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 24px; height: 24px;">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h1>GARAGE BILL SYSTEM</h1>
+                  <p class="tagline">Premium SUV, 4x4 & Luxury Sedan Specialists</p>
+                </div>
+              </div>
+              <div class="invoice-meta font-mono">
+                <h2>INVOICE</h2>
+                <p><strong>Invoice ID:</strong> {{ selectedInvoice()!.id }}</p>
+                <p><strong>Date:</strong> {{ selectedInvoice()!.date | date:'dd-MMM-yyyy' }}</p>
+                <p><strong>Due Date:</strong> {{ selectedInvoice()!.dueDate | date:'dd-MMM-yyyy' }}</p>
+              </div>
+            </div>
+
+            <hr class="sheet-divider">
+
+            <!-- Sheet Party Details Grid -->
+            <div class="sheet-details-grid">
+              <div class="details-col">
+                <h4 class="col-title">CUSTOMER BILL-TO:</h4>
+                <p class="party-name"><strong>{{ selectedInvoice()!.customerName }}</strong></p>
+                <p><strong>Mobile:</strong> +91 {{ selectedInvoice()!.mobileNo }}</p>
+                <p class="party-address"><strong>Address:</strong> {{ selectedInvoice()!.address }}</p>
+              </div>
+              
+              <div class="details-col">
+                <h4 class="col-title">VEHICLE DETAILS:</h4>
+                <p><strong>Brand / Model:</strong> {{ selectedInvoice()!.brandName }} {{ selectedInvoice()!.modelType }}</p>
+                <p><strong>Category:</strong> <span class="print-vtype">{{ selectedInvoice()!.vehicleType }}</span></p>
+                <p class="font-mono"><strong>License Number:</strong> {{ selectedInvoice()!.vehicleNumber }}</p>
+                <p><strong>Odometer:</strong> {{ selectedInvoice()!.kmsRun | number }} KMs Run</p>
+              </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <table class="sheet-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 5%;">#</th>
+                  <th style="width: 50%; text-align: left;">Service Description / Spares Used</th>
+                  <th style="width: 10%; text-align: center;">Qty</th>
+                  <th style="width: 20%; text-align: right;">Selling Price (₹)</th>
+                  <th style="width: 15%; text-align: right;">Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of selectedInvoice()!.items; track item.id; let idx = $index) {
+                  <tr>
+                    <td style="text-align: center;" class="font-mono">{{ idx + 1 }}</td>
+                    <td style="text-align: left;">{{ item.description }}</td>
+                    <td style="text-align: center;" class="font-mono">{{ item.quantity }}</td>
+                    <td style="text-align: right;" class="font-mono">{{ item.sellingPrice | number:'1.2-2' }}</td>
+                    <td style="text-align: right;" class="font-mono">{{ (item.quantity * item.sellingPrice) | number:'1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <!-- Summary & Signatures -->
+            <div class="sheet-footer-grid">
+              <div class="sheet-notes">
+                <h4>Invoice Notes & Remarks:</h4>
+                <p>{{ selectedInvoice()!.notes }}</p>
+                <div class="warranty-terms">
+                  <p><strong>Terms:</strong> 1. Goods once sold are not returnable. 2. 90 Days warranty on suspension bushes and mechanical labor. 3. Electrical parts carry no return/warranty policies.</p>
+                </div>
+              </div>
+
+              <div class="sheet-calculations font-mono">
+                <!-- Labour Charge -->
+                <div class="calc-row">
+                  <span>Labour Charge:</span>
+                  <span>{{ selectedInvoice()!.labourCharge | number:'1.2-2' }}</span>
+                </div>
+                <!-- Spare Parts -->
+                <div class="calc-row">
+                  <span>Spare (Parts):</span>
+                  <span>{{ selectedInvoice()!.subtotal | number:'1.2-2' }}</span>
+                </div>
+                <hr class="sheet-calc-divider">
+                <div class="calc-row sheet-grand-total">
+                  <span>Net Payable:</span>
+                  <span>₹{{ selectedInvoice()!.grandTotal | number:'1.2-2' }}</span>
+                </div>
+
+                <div class="payment-badge-container">
+                  <div class="sheet-payment-status" [class]="selectedInvoice()!.paymentStatus.toLowerCase()">
+                    {{ selectedInvoice()!.paymentStatus.toUpperCase() }} (via {{ selectedInvoice()!.paymentMethod }})
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signature footer -->
+            <div class="sheet-signatures">
+              <div class="sig-box">
+                <div class="sig-line"></div>
+                <p>Customer Signature</p>
+              </div>
+              <div class="sig-box">
+                <div class="sig-stamp">ANTIGRAVITY MOTORS</div>
+                <div class="sig-line"></div>
+                <p>Authorised Signatory</p>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      }
+
+      <!-- ================= REPORT VIEW ================= -->
+      @if (activeView() === 'report') {
+        <section class="report-view animate-fade-in no-print">
+          <div class="report-summary-grid">
+            <div class="summary-card">
+              <span class="stat-label">This Week Income</span>
+              <h4 class="font-mono">{{ thisWeekIncome() | currency:'INR':'symbol':'1.0-0' }}</h4>
+            </div>
+            <div class="summary-card">
+              <span class="stat-label">Monthly Income</span>
+              <h4 class="font-mono">{{ monthlyIncome() | currency:'INR':'symbol':'1.0-0' }}</h4>
+            </div>
+            <div class="summary-card labour-charge-card">
+              <span class="stat-label">Labour Charge This Month</span>
+              <h4 class="font-mono">{{ labourChargeThisMonth() | currency:'INR':'symbol':'1.0-0' }}</h4>
+            </div>
+            <div class="summary-card profit-card">
+              <span class="stat-label">Profit from Parts</span>
+              <h4 class="font-mono">{{ profitFromParts() | currency:'INR':'symbol':'1.0-0' }}</h4>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="card-header">
+              <h3>Bills Report</h3>
+              <div class="report-controls">
+                <label style="margin-right:10px">From
+                  <input type="date" [ngModel]="reportFromDate()" (ngModelChange)="reportFromDate.set($event)">
+                </label>
+                <label style="margin-right:10px">To
+                  <input type="date" [ngModel]="reportToDate()" (ngModelChange)="reportToDate.set($event)">
+                </label>
+                <button class="btn btn-outline" (click)="refreshReport()">Refresh</button>
+                <span class="table-badge" style="margin-left:12px">{{ reportInvoices().length }} item(s)</span>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Vehicle</th>
+                    <th>Odometer</th>
+                    <th>Grand Total</th>
+                    <th>Status</th>
+                    <th style="text-align: right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (inv of reportInvoices(); track inv.id) {
+                    <tr class="clickable-row" (click)="viewInvoice(inv)">
+                      <td class="font-mono invoice-id">{{ inv.id }}</td>
+                      <td>{{ inv.date | date:'dd-MMM-yyyy' }}</td>
+                      <td>
+                        <div class="customer-cell">
+                          <span class="customer-name">{{ inv.customerName }}</span>
+                          <span class="customer-phone text-dim">{{ inv.mobileNo }}</span>
+                        </div>
+                      </td>
+                      <td>{{ inv.brandName }} {{ inv.modelType }}</td>
+                      <td class="font-mono text-dim">{{ inv.kmsRun | number }} km</td>
+                      <td class="font-mono total-cell">{{ inv.grandTotal | currency:'INR':'symbol':'1.0-0' }}</td>
+                      <td>
+                        <span class="badge status-badge" [class]="'status-' + inv.paymentStatus.toLowerCase()">{{ inv.paymentStatus }}</span>
+                      </td>
+                      <td class="actions-cell" (click)="$event.stopPropagation()">
+                        <div class="btn-group">
+                          <button class="btn btn-icon" title="View details" (click)="viewInvoice(inv)">Details</button>
+                        </div>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="8" class="empty-table-state">No bills found for the selected date range.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ================= INVENTORY VIEW ================= -->
+      @if (activeView() === 'inventory') {
+        <section class="inventory-view animate-fade-in">
+          
+          <!-- Inventory Header & Stats -->
+          <div class="inventory-header">
+            <div class="header-title">
+              <h2>
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 12px;">
+                  <path d="M20 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1z"/>
+                  <path d="M9 5V3h6v2M9 17v2h6v-2"/>
+                </svg>
+                Spare Parts Inventory
+              </h2>
+              <p>Manage and track garage spare parts stock levels</p>
+            </div>
+            <div class="inventory-stats">
+              <div class="stat-box">
+                <span class="label">Total Stock Value</span>
+                <span class="value">{{ totalInventoryValue() | currency:'INR':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="stat-box">
+                <span class="label">Total Parts</span>
+                <span class="value">{{ spareParts().length }}</span>
+              </div>
+              <div class="stat-box warning">
+                <span class="label">Low Stock Items</span>
+                <span class="value">{{ lowStockItems().length }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Low Stock Alert -->
+          @if (lowStockItems().length > 0) {
+            <div class="alert alert-warning">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1"/>
+              </svg>
+              <div>
+                <strong>{{ lowStockItems().length }} items are below reorder level!</strong>
+                These spare parts need to be restocked soon to avoid disruptions.
+              </div>
+            </div>
+          }
+
+          <!-- Search Bar -->
+          <div class="inventory-search-container">
+            <div class="search-input-wrapper">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+              <input
+                type="text"
+                class="inventory-search-input"
+                placeholder="Search by name or category..."
+                [value]="inventorySearchQuery()"
+                (input)="inventorySearchQuery.set($event.target.value)"
+              />
+              @if (inventorySearchQuery()) {
+                <button class="clear-search-btn" (click)="inventorySearchQuery.set('')" aria-label="Clear search">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Inventory Table -->
+          <div class="table-container">
+            <table class="inventory-table">
+              <thead>
+                <tr>
+                  <th>Part Name</th>
+                  <th>Category</th>
+                  <th class="text-center">Current Stock</th>
+                  <th class="text-right">Unit Price</th>
+                  <th class="text-right">Selling Price</th>
+                  <th class="text-right">Total Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (part of filteredSpareParts(); track part.id) {
+                  @let isLowStock = part.quantity <= part.reorderLevel;
+                  <tr [class.low-stock-row]="isLowStock">
+                    <td class="font-medium">{{ part.name }}</td>
+                    <td>
+                      <span class="category-badge" [class]="'badge-' + part.category.toLowerCase()">
+                        {{ part.category }}
+                      </span>
+                    </td>
+                    <td class="text-center font-mono font-bold">{{ part.quantity }}</td>
+                    <td class="text-right font-mono">{{ part.unitPrice | currency:'INR':'symbol':'1.0-0' }}</td>
+                    <td class="text-right font-mono">{{ part.sellingPrice | currency:'INR':'symbol':'1.0-0' }}</td>
+                    <td class="text-right font-mono font-bold">{{ (part.quantity * part.unitPrice) | currency:'INR':'symbol':'1.0-0' }}</td>
+                  </tr>
+                }
+                @if (filteredSpareParts().length === 0 && inventorySearchQuery()) {
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-3">
+                      No spare parts found matching "{{ inventorySearchQuery() }}"
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+      }
+
+      <!-- ================= RESTOCK DETAILS VIEW ================= -->
+      @if (activeView() === 'restock') {
+        <section class="form-view animate-slide-in no-print">
+          <div class="card form-card">
+            <div class="form-card-header">
+              <div class="header-text">
+                <h2>Restock Details</h2>
+                <p>Add new inventory or update existing spare part quantities.</p>
+              </div>
+              <button class="btn btn-outline btn-sm" (click)="showInventory()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Inventory
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-section">
+                <div class="section-title">
+                  <div class="bullet-glow"></div>
+                  <h3>Spare Part Restock</h3>
+                </div>
+
+                <div class="form-group">
+                  <label>Item Name <span class="required">*</span></label>
+                  <input type="text" placeholder="Enter part name" [ngModel]="formRestockItemName()" (ngModelChange)="formRestockItemName.set($event)" (blur)="formRestockItemTouched.set(true)" [class.input-error]="formRestockItemTouched() && !formRestockItemName().trim()" />
+                  @if (formRestockItemTouched() && !formRestockItemName().trim()) {
+                    <div class="field-error">Item name is required.</div>
+                  }
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Units To Add <span class="required">*</span></label>
+                    <input type="number" min="1" [ngModel]="formRestockUnits()" (ngModelChange)="formRestockUnits.set($event)" (blur)="formRestockUnitsTouched.set(true)" [class.input-error]="formRestockUnitsTouched() && !(formRestockUnits() >= 1)" />
+                    @if (formRestockUnitsTouched() && !(formRestockUnits() >= 1)) {
+                      <div class="field-error">Enter at least 1 unit.</div>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <label>Unit Price (₹)</label>
+                    <input type="number" min="1" [ngModel]="formRestockUnitPrice()" (ngModelChange)="formRestockUnitPrice.set($event)" (blur)="formRestockUnitPriceTouched.set(true)" [class.input-error]="formRestockUnitPriceTouched() && ((formRestockUnitPrice() ?? 0) < 1)" />
+                    @if (formRestockUnitPriceTouched() && ((formRestockUnitPrice() ?? 0) < 1)) {
+                      <div class="field-error">Unit price must be at least 1.</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Selling Price (₹)</label>
+                  <input type="number" min="1" [ngModel]="formRestockSellingPrice()" (ngModelChange)="formRestockSellingPrice.set($event)" (blur)="formRestockSellingPriceTouched.set(true)" [class.input-error]="formRestockSellingPriceTouched() && ((formRestockSellingPrice() ?? 0) < 1)" />
+                  @if (formRestockSellingPriceTouched() && ((formRestockSellingPrice() ?? 0) < 1)) {
+                    <div class="field-error">Selling price must be at least 1.</div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions-row">
+              <button class="btn btn-primary" (click)="saveRestockDetails()" [disabled]="!restockFormValid()">Save Restock</button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ================= RESTOCK CONFIRMATION VIEW ================= -->
+      @if (activeView() === 'restock-confirmation') {
+        <section class="confirmation-view animate-fade-in">
+          <div class="card form-card confirmation-card">
+            <div class="form-card-header">
+              <div class="header-text">
+                <h2>Restock Confirmation</h2>
+                <p>{{ restockConfirmationMessage() }}</p>
+              </div>
+            </div>
+
+            <div class="form-section confirmation-content">
+              <div class="confirmation-icon">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <p class="confirmation-detail">{{ restockConfirmationDetail() }}</p>
+            </div>
+
+            <div class="form-actions-row">
+              <button class="btn btn-primary" (click)="completeRestockConfirmation()">Back to Inventory</button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ================= SETTINGS VIEW ================= -->
+      @if (activeView() === 'settings') {
+        <section class="settings-view animate-fade-in">
+          <div class="settings-header">
+            <h2>
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 12px;">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/>
+              </svg>
+              Settings
+            </h2>
+            <p>Configure printer settings and system preferences</p>
+          </div>
+
+          <div class="settings-container">
+            <!-- Printer Settings Card -->
+            <div class="settings-card">
+              <div class="card-header">
+                <div class="header-with-status">
+                  <h3>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                      <polyline points="6 9 6 2 18 2 18 9"/>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    </svg>
+                    Printer Settings
+                  </h3>
+                  <button class="status-button" [class]="'status-' + printerSettings().connectionStatus()" 
+                          [title]="printerSettings().connectionStatus() === 'connected' ? 'Click to disconnect' : 'Click to connect'"
+                          (click)="printerSettings().connectionStatus() === 'connected' ? disconnectPrinter() : null">
+                    <span class="status-dot"></span>
+                    <span class="status-text">
+                      {{ printerSettings().connectionStatus() === 'connected' ? 'Connected' : 
+                         printerSettings().connectionStatus() === 'scanning' ? 'Scanning...' : 'Disconnected' }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-form">
+                <!-- Connection Type -->
+                <div class="form-group">
+                  <label>Connection Type</label>
+                  <select [ngModel]="printerSettings().connectionType()" (ngModelChange)="printerSettings().connectionType.set($event)" class="form-control">
+                    <option value="WiFi">WiFi (Recommended)</option>
+                    <option value="Cable">USB Cable</option>
+                  </select>
+                </div>
+
+                <!-- WiFi Device Discovery Section -->
+                @if (printerSettings().connectionType() === 'WiFi') {
+                  <div class="device-discovery-section">
+                    <div class="section-label">
+                      <h4>Available Devices</h4>
+                      <button class="btn-refresh" [disabled]="isScanning()" (click)="scanWiFiDevices()" title="Scan for WiFi printers">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" [class.rotating]="isScanning()">
+                          <path d="M1 4v6h6M23 20v-6h-6"/>
+                          <path d="M20.49 9A9 9 0 005.64 5.64M3.51 15A9 9 0 0018.36 18.36"/>
+                        </svg>
+                        {{ isScanning() ? 'Scanning...' : 'Refresh Devices' }}
+                      </button>
+                    </div>
+
+                    <!-- Available Devices List -->
+                    @if (availableWiFiDevices().length > 0) {
+                      <div class="devices-list">
+                        @for (device of availableWiFiDevices(); track device.id) {
+                          <div class="device-item" [class.selected]="printerSettings().selectedDeviceId() === device.id" [class.offline]="!device.online">
+                            <div class="device-header">
+                              <div class="device-icon">
+                                @switch (device.deviceType) {
+                                  @case ('printer') {
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                      <polyline points="6 9 6 2 18 2 18 9"/>
+                                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                    </svg>
+                                  }
+                                  @case ('mobile') {
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                      <rect x="5" y="2" width="14" height="20" rx="2"/>
+                                      <path d="M12 21h0"/>
+                                    </svg>
+                                  }
+                                  @case ('laptop') {
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                      <path d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h14l4 4V5c0-1.1-.9-2-2-2zm-2 12H6V5h12v10z"/>
+                                    </svg>
+                                  }
+                                  @case ('tablet') {
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                      <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                                      <path d="M12 18h.01"/>
+                                    </svg>
+                                  }
+                                  @default {
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                      <circle cx="12" cy="12" r="9"/>
+                                    </svg>
+                                  }
+                                }
+                              </div>
+                              <div class="device-info">
+                                <div class="device-name">{{ device.name }}</div>
+                                <div class="device-details">
+                                  <span class="device-type">{{ device.deviceType | titlecase }}</span>
+                                  <span class="device-status" [class.online]="device.online">
+                                    {{ device.online ? 'Online' : 'Offline' }}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="device-footer">
+                              <div class="device-ip">{{ device.ip }}</div>
+                              <div class="device-mac">{{ device.macAddress }}</div>
+                              @if (device.signal !== undefined && device.signal > 0) {
+                                <div class="device-signal">
+                                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                                    <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+                                  </svg>
+                                  <span class="signal-strength">{{ device.signal }}%</span>
+                                </div>
+                              }
+                            </div>
+                            <button class="btn-connect" 
+                                    [disabled]="isScanning() || printerSettings().connectionStatus() === 'scanning' || !device.online"
+                                    (click)="connectToPrinter(device.id)"
+                                    title="Connect to this device">
+                              {{ printerSettings().selectedDeviceId() === device.id ? 'Connected' : 'Connect' }}
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <div class="empty-devices">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.5;">
+                          <circle cx="12" cy="12" r="1"/>
+                          <circle cx="12" cy="12" r="5"/>
+                          <circle cx="12" cy="12" r="9"/>
+                        </svg>
+                        <p><strong>No devices found.</strong></p>
+                        <p class="hint-text">Click "Refresh Devices" to scan for all WiFi-connected devices including printers, mobile phones, laptops, and tablets on your network.</p>
+                        <p class="hint-text"><small>Ensure your network supports mDNS discovery or configure a backend endpoint at <code>/api/network/scan-devices</code></small></p>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Printer Name -->
+                <div class="form-group">
+                  <label>Printer Name</label>
+                  <input type="text" placeholder="e.g. Canon LBP-6030" [ngModel]="printerSettings().printerName()" (ngModelChange)="printerSettings().printerName.set($event)" class="form-control">
+                </div>
+
+                <!-- Paper Size -->
+                <div class="form-group">
+                  <label>Paper Size</label>
+                  <select [ngModel]="printerSettings().paperSize()" (ngModelChange)="printerSettings().paperSize.set($event)" class="form-control">
+                    <option value="A4">A4</option>
+                    <option value="A5">A5</option>
+                    <option value="Letter">Letter</option>
+                  </select>
+                </div>
+
+                <!-- Orientation -->
+                <div class="form-group">
+                  <label>Orientation</label>
+                  <select [ngModel]="printerSettings().orientation()" (ngModelChange)="printerSettings().orientation.set($event)" class="form-control">
+                    <option value="Portrait">Portrait</option>
+                    <option value="Landscape">Landscape</option>
+                  </select>
+                </div>
+
+                <!-- Margin Size -->
+                <div class="form-group">
+                  <label>Margin Size</label>
+                  <select [ngModel]="printerSettings().marginSize()" (ngModelChange)="printerSettings().marginSize.set($event)" class="form-control">
+                    <option value="Small">Small (0.5 cm)</option>
+                    <option value="Normal">Normal (1 cm)</option>
+                    <option value="Large">Large (1.5 cm)</option>
+                  </select>
+                </div>
+
+                <!-- Print Quality -->
+                <div class="form-group">
+                  <label>Print Quality</label>
+                  <select [ngModel]="printerSettings().quality()" (ngModelChange)="printerSettings().quality.set($event)" class="form-control">
+                    <option value="Draft">Draft</option>
+                    <option value="Standard">Standard</option>
+                    <option value="High">High</option>
+                  </select>
+                </div>
+
+                <!-- Auto-Detect -->
+                <div class="form-group checkbox-group">
+                  <label>
+                    <input type="checkbox" [checked]="printerSettings().autoDetect()" (change)="printerSettings().autoDetect.set($event.target.checked)">
+                    <span>Auto-detect Printer</span>
+                  </label>
+                  <p class="help-text">Automatically detect connected printers on system startup</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="settings-actions">
+                  <button class="btn btn-primary" title="Save and test printer connection">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                      <polyline points="19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                      <polyline points="17 21v-4H7v4M7 3v5h8"/>
+                    </svg>
+                    Save Settings
+                  </button>
+                  <button class="btn btn-outline" title="Test printer connection" [disabled]="printerSettings().connectionStatus() !== 'connected'">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                      <polyline points="6 9 6 2 18 2 18 9"/>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                      <circle cx="12" cy="15" r="2"/>
+                    </svg>
+                    Test Print
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Connection Status Card -->
+            <div class="settings-card info-card">
+              <div class="card-header">
+                <h3>Connection Status</h3>
+              </div>
+              <div class="settings-summary">
+                <div class="summary-item">
+                  <span class="label">Status:</span>
+                  <span class="value" [class]="'status-indicator-' + printerSettings().connectionStatus()">
+                    <span class="status-dot"></span>
+                    {{ printerSettings().connectionStatus() === 'connected' ? 'Connected' : 
+                       printerSettings().connectionStatus() === 'scanning' ? 'Scanning...' : 'Disconnected' }}
+                  </span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Printer:</span>
+                  <span class="value font-mono">{{ printerSettings().printerName() || 'Not selected' }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Connection:</span>
+                  <span class="value">{{ printerSettings().connectionType() }} 
+                    @if (printerSettings().connectionType() === 'WiFi' && printerSettings().wifiSSID()) {
+                      <span class="ip-address">({{ printerSettings().wifiSSID() }})</span>
+                    }
+                  </span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Paper:</span>
+                  <span class="value">{{ printerSettings().paperSize() }} - {{ printerSettings().orientation() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Quality:</span>
+                  <span class="value">{{ printerSettings().quality() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      }
+
+    </div>
+
+  </main>
+</div>
