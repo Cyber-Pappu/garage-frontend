@@ -362,6 +362,7 @@ export class App implements OnInit {
 
   // Report View helpers
   showReportView() {
+
   const today = new Date();
 
   this.reportToDate.set(
@@ -374,9 +375,14 @@ export class App implements OnInit {
     1
   );
 
+  const year = firstDay.getFullYear();
+  const month = String(firstDay.getMonth() + 1).padStart(2, '0');
+  const day = String(firstDay.getDate()).padStart(2, '0');
+
   this.reportFromDate.set(
-    firstDay.toISOString().split('T')[0]
+    `${year}-${month}-${day}`
   );
+  
 
   this.loadInvoices();
   this.activeView.set('report');
