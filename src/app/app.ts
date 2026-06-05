@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { HttpClientModule } from '@angular/common/http';
 import { Invoice, InvoiceItem, ServicePreset, SERVICE_PRESETS, VEHICLE_TYPES, BRANDS, SparePart } from './invoice.model';
 import { MOCK_INVOICES, MOCK_SPARE_PARTS } from './mock-data';
-import { NetworkScannerService, NetworkDevice } from './network-scanner.service';
 
 @Component({
   selector: 'app-root',
@@ -21,25 +20,8 @@ export class App implements OnInit {
   readonly spareParts = signal<SparePart[]>([]);
 
   // Navigation / View states
-  readonly activeView = signal<'dashboard' | 'create' | 'view' | 'edit' | 'inventory' | 'restock' | 'restock-confirmation' | 'report' | 'settings'>('create');
+  readonly activeView = signal<'dashboard' | 'create' | 'view' | 'edit' | 'inventory' | 'restock' | 'restock-confirmation' | 'report'>('create');
   readonly selectedInvoice = signal<Invoice | null>(null);
-
-  // Printer Settings State
-  readonly printerSettings = signal({
-    connectionType: signal<'Cable' | 'WiFi'>('WiFi'),
-    printerName: signal<string>('Canon LBP-6030'),
-    paperSize: signal<'A4' | 'A5' | 'Letter'>('A4'),
-    orientation: signal<'Portrait' | 'Landscape'>('Portrait'),
-    marginSize: signal<'Small' | 'Normal' | 'Large'>('Normal'),
-    autoDetect: signal<boolean>(true),
-    quality: signal<'Draft' | 'Standard' | 'High'>('Standard'),
-    wifiSSID: signal<string>(''),
-    connectionStatus: signal<'connected' | 'disconnected' | 'scanning'>('disconnected'),
-    selectedDeviceId: signal<string>('')
-  });
-
-  readonly availableWiFiDevices = signal<NetworkDevice[]>([]);
-  readonly isScanning = signal<boolean>(false);
 
   // Filters & Search
   readonly searchQuery = signal<string>('');
@@ -339,7 +321,7 @@ export class App implements OnInit {
     });
   });
 
-  constructor(private networkScanner: NetworkScannerService, private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
     this.loadInvoices();
@@ -570,67 +552,6 @@ export class App implements OnInit {
           alert('Failed to update inventory');
         }
       });
-  }
-
-  showSettings() {
-    this.activeView.set('settings');
-    this.selectedInvoice.set(null);
-  }
-
-  // Printer WiFi Management
-  async scanWiFiDevices() {
-    this.isScanning.set(true);
-    this.printerSettings().connectionStatus.set('scanning');
-    
-    try {
-      // Scan for actual network devices
-      const devices = await this.networkScanner.scanNetworkDevices();
-      
-      // Save discovered devices for future reference
-      this.networkScanner.saveDevicesToLocalStorage(devices);
-      
-      // Update available devices
-      this.availableWiFiDevices.set(devices);
-      
-      this.printerSettings().connectionStatus.set('disconnected');
-    } catch (error) {
-      console.error('Error scanning network devices:', error);
-      this.availableWiFiDevices.set([]);
-      this.printerSettings().connectionStatus.set('disconnected');
-    } finally {
-      this.isScanning.set(false);
-    }
-  }
-
-  async connectToPrinter(deviceId: string) {
-    const device = this.availableWiFiDevices().find(d => d.id === deviceId);
-    if (!device) return;
-
-    this.printerSettings().connectionStatus.set('scanning');
-    
-    try {
-      // Check if device is online before connecting
-      const isOnline = await this.networkScanner.checkDeviceStatus(device.ip);
-      
-      if (isOnline || device.online) {
-        this.printerSettings().selectedDeviceId.set(deviceId);
-        this.printerSettings().printerName.set(device.name);
-        this.printerSettings().wifiSSID.set(device.ip);
-        this.printerSettings().connectionStatus.set('connected');
-      } else {
-        this.printerSettings().connectionStatus.set('disconnected');
-        console.warn('Device is not online');
-      }
-    } catch (error) {
-      console.error('Error connecting to device:', error);
-      this.printerSettings().connectionStatus.set('disconnected');
-    }
-  }
-
-  disconnectPrinter() {
-    this.printerSettings().connectionStatus.set('disconnected');
-    this.printerSettings().selectedDeviceId.set('');
-    this.printerSettings().wifiSSID.set('');
   }
 
   // Form Operations
