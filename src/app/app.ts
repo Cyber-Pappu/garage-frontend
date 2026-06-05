@@ -892,7 +892,7 @@ export class App implements OnInit {
   viewInvoice(invoice: Invoice) {
 
   this.http.get<any[]>(
-    `https://garage-backend-production-c702.up.railway.app/api/invoices/${invoice.id}/item`
+    `https://garage-backend-production-c702.up.railway.app/api/invoices/${invoice.id}/items`
   ).subscribe({
 
     next: (items) => {
