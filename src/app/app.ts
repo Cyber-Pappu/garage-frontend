@@ -352,7 +352,7 @@ export class App implements OnInit {
   loadSpareParts() {
 
   this.http.get<any[]>(
-    'http://localhost:3000/api/inventory'
+    'https://garage-backend-production-c702.up.railway.app/api/inventory'
   ).subscribe({
 
     next: (data) => {
@@ -402,7 +402,7 @@ export class App implements OnInit {
   loadInvoices() {
  
   this.http.get<any[]>(
-    'http://localhost:3000/api/invoices'
+    'https://garage-backend-production-c702.up.railway.app/api/invoices'
   ).subscribe({
 
     next: (data) => {
@@ -541,7 +541,7 @@ export class App implements OnInit {
       };
 
       this.http.post(
-        'http://localhost:3000/api/inventory/restock',
+        'https://garage-backend-production-c702.up.railway.app/api/inventory/restock',
         payload
       ).subscribe({
         next: (response: any) => {
@@ -829,7 +829,7 @@ export class App implements OnInit {
 
     validItems.forEach(item => {
       this.http.post(
-        'http://localhost:3000/api/inventory/consume',
+        'https://garage-backend-production-c702.up.railway.app/api/inventory/consume',
         {
           part_name: item.description,
           quantity: item.quantity
@@ -844,7 +844,7 @@ export class App implements OnInit {
       });
     });
     this.http.post(
-      'http://localhost:3000/api/invoices',
+      'https://garage-backend-production-c702.up.railway.app/api/invoices',
       {
       ...newInvoice,
       partsProfit: partsProfit,
@@ -892,7 +892,7 @@ export class App implements OnInit {
   viewInvoice(invoice: Invoice) {
 
   this.http.get<any[]>(
-    `http://localhost:3000/api/invoices/${invoice.id}/items`
+    `https://garage-backend-production-c702.up.railway.app/api/invoices/${invoice.id}/item`
   ).subscribe({
 
     next: (items) => {
