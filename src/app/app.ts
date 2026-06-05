@@ -425,8 +425,8 @@ export class App implements OnInit {
 
         kmsRun: Number(inv.odometer),
 
-        date: inv.invoice_date,
-        dueDate: inv.invoice_date,
+       date: inv.invoice_date.split('T')[0],
+       dueDate: inv.invoice_date.split('T')[0],
 
         items: [],
 
