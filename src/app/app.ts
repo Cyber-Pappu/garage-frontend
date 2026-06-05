@@ -380,20 +380,26 @@ export class App implements OnInit {
 
   // Report View helpers
   showReportView() {
-    // default to current month if not set
-    if (!this.reportToDate()) {
-      const today = new Date();
-      this.reportToDate.set(today.toISOString().split('T')[0]);
-    }
-    if (!this.reportFromDate()) {
-      const from = new Date();
-      from.setDate(1); // First day of current month
-      this.reportFromDate.set(from.toISOString().split('T')[0]);
-    }
-    this.activeView.set('report');
-    this.selectedInvoice.set(null);
-  }
+  const today = new Date();
 
+  this.reportToDate.set(
+    today.toISOString().split('T')[0]
+  );
+
+  const firstDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+  );
+
+  this.reportFromDate.set(
+    firstDay.toISOString().split('T')[0]
+  );
+
+  this.loadInvoices();
+  this.activeView.set('report');
+  this.selectedInvoice.set(null);
+}
   refreshReport() {
     this.loadInvoices();
   }
