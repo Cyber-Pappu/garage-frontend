@@ -177,14 +177,11 @@
                         <td>
                           <!-- Select option with fallback to text or search list -->
                           <div class="description-selector">
-                            <input type="text" placeholder="Enter service description or select below" 
+                            <input type="text" placeholder="Enter item description or select from inventory" 
                                    [ngModel]="item.description" 
                                    (ngModelChange)="updateItem(idx, 'description', $event)"
-                                   list="service-preset-datalist">
-                            <datalist id="service-preset-datalist">
-                              @for (preset of servicePresets; track preset.description) {
-                                <option [value]="preset.description"></option>
-                              }
+                                   list="inventory-item-datalist">
+                            <datalist id="inventory-item-datalist">
                               @for (part of spareParts(); track part.id) {
                                 <option [value]="part.name"></option>
                               }
