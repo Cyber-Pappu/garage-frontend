@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { HttpClientModule } from '@angular/common/http';
 import { Invoice, InvoiceItem, ServicePreset, SERVICE_PRESETS, VEHICLE_TYPES, BRANDS, SparePart } from './invoice.model';
-import { MOCK_INVOICES, MOCK_SPARE_PARTS } from './mock-data';
 
 @Component({
   selector: 'app-root',
