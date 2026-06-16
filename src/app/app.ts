@@ -31,6 +31,7 @@ export class App implements OnInit {
   // Report filters
   readonly reportFromDate = signal<string>('');
   readonly reportToDate = signal<string>('');
+  readonly reportRefreshTrigger = signal<number>(0);
 
   // Form Fields
   readonly formId = signal<string>('');
@@ -321,6 +322,8 @@ export class App implements OnInit {
 
   // Reported invoices within date range
   readonly reportInvoices = computed(() => {
+    this.reportRefreshTrigger();
+
     const from = this.reportFromDate();
     const to = this.reportToDate();
     let list = this.invoices();
@@ -407,6 +410,15 @@ export class App implements OnInit {
   this.selectedInvoice.set(null);
 }
   refreshReport() {
+    const from = this.reportFromDate();
+    const to = this.reportToDate();
+
+    if (from && to && from > to) {
+      this.reportFromDate.set(to);
+      this.reportToDate.set(from);
+    }
+
+    this.reportRefreshTrigger.update(value => value + 1);
     this.loadInvoices();
   }
 
