@@ -159,38 +159,57 @@ export class App implements OnInit {
 
   // Time-based income summaries for reports
   readonly thisWeekIncome = computed(() => {
-    const from = this.reportFromDate();
-    const to = this.reportToDate();
-    let list = this.invoices();
 
-    if (from) {
-      list = list.filter(inv => inv.date >= from);
-    }
-    if (to) {
-      list = list.filter(inv => inv.date <= to);
-    }
+  const today = new Date();
 
-    return list
-      .filter(inv => inv.paymentStatus === 'Paid')
-      .reduce((acc, inv) => acc + inv.grandTotal, 0);
-  });
+  const startOfWeek = new Date(today);
+  const day = startOfWeek.getDay(); // 0=Sunday
+
+  const diff = day === 0 ? -6 : 1 - day;
+
+  startOfWeek.setDate(startOfWeek.getDate() + diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  return this.invoices()
+    .filter(inv => {
+
+      const invoiceDate = new Date(inv.date);
+
+      return (
+        inv.paymentStatus === 'Paid' &&
+        invoiceDate >= startOfWeek &&
+        invoiceDate <= endOfWeek
+      );
+    })
+    .reduce((acc, inv) => acc + inv.grandTotal, 0);
+
+});
 
   readonly monthlyIncome = computed(() => {
-    const from = this.reportFromDate();
-    const to = this.reportToDate();
-    let list = this.invoices();
 
-    if (from) {
-      list = list.filter(inv => inv.date >= from);
-    }
-    if (to) {
-      list = list.filter(inv => inv.date <= to);
-    }
+  const today = new Date();
 
-    return list
-      .filter(inv => inv.paymentStatus === 'Paid')
-      .reduce((acc, inv) => acc + inv.grandTotal, 0);
-  });
+  const month = today.getMonth();
+  const year = today.getFullYear();
+
+  return this.invoices()
+    .filter(inv => {
+
+      const invoiceDate = new Date(inv.date);
+
+      return (
+        inv.paymentStatus === 'Paid' &&
+        invoiceDate.getMonth() === month &&
+        invoiceDate.getFullYear() === year
+      );
+    })
+    .reduce((acc, inv) => acc + inv.grandTotal, 0);
+
+});
 
   readonly labourChargeThisMonth = computed(() => {
     const from = this.reportFromDate();
