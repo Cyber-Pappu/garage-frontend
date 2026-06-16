@@ -161,10 +161,33 @@ export class App implements OnInit {
   // Time-based income summaries for reports
   readonly thisWeekIncome = computed(() => {
 
+  const from = this.reportFromDate();
+  const to = this.reportToDate();
+
+  // FILTER MODE
+  if (from || to) {
+
+    let list = this.invoices();
+
+    if (from) {
+      list = list.filter(inv => inv.date >= from);
+    }
+
+    if (to) {
+      list = list.filter(inv => inv.date <= to);
+    }
+
+    return list
+      .filter(inv => inv.paymentStatus === 'Paid')
+      .reduce((acc, inv) => acc + inv.grandTotal, 0);
+  }
+
+  // CURRENT WEEK MODE
+
   const today = new Date();
 
   const startOfWeek = new Date(today);
-  const day = startOfWeek.getDay(); // 0=Sunday
+  const day = startOfWeek.getDay();
 
   const diff = day === 0 ? -6 : 1 - day;
 
@@ -190,7 +213,30 @@ export class App implements OnInit {
 
 });
 
-  readonly monthlyIncome = computed(() => {
+readonly monthlyIncome = computed(() => {
+
+  const from = this.reportFromDate();
+  const to = this.reportToDate();
+
+  // FILTER MODE
+  if (from || to) {
+
+    let list = this.invoices();
+
+    if (from) {
+      list = list.filter(inv => inv.date >= from);
+    }
+
+    if (to) {
+      list = list.filter(inv => inv.date <= to);
+    }
+
+    return list
+      .filter(inv => inv.paymentStatus === 'Paid')
+      .reduce((acc, inv) => acc + inv.grandTotal, 0);
+  }
+
+  // CURRENT MONTH MODE
 
   const today = new Date();
 
