@@ -161,40 +161,21 @@ export class App implements OnInit {
   // Time-based income summaries for reports
   readonly thisWeekIncome = computed(() => {
 
-  const from = this.reportFromDate();
-  const to = this.reportToDate();
-
-  // FILTER MODE
-  if (from || to) {
-
-    let list = this.invoices();
-
-    if (from) {
-      list = list.filter(inv => inv.date >= from);
-    }
-
-    if (to) {
-      list = list.filter(inv => inv.date <= to);
-    }
-
-    return list
-      .filter(inv => inv.paymentStatus === 'Paid')
-      .reduce((acc, inv) => acc + inv.grandTotal, 0);
-  }
-
-  // CURRENT WEEK MODE
-
   const today = new Date();
 
+  // Monday of current week
   const startOfWeek = new Date(today);
-  const day = startOfWeek.getDay();
+
+  const day = startOfWeek.getDay(); // Sunday=0
 
   const diff = day === 0 ? -6 : 1 - day;
 
   startOfWeek.setDate(startOfWeek.getDate() + diff);
   startOfWeek.setHours(0, 0, 0, 0);
 
+  // Sunday of current week
   const endOfWeek = new Date(startOfWeek);
+
   endOfWeek.setDate(endOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
@@ -208,11 +189,11 @@ export class App implements OnInit {
         invoiceDate >= startOfWeek &&
         invoiceDate <= endOfWeek
       );
+
     })
-    .reduce((acc, inv) => acc + inv.grandTotal, 0);
+    .reduce((sum, inv) => sum + inv.grandTotal, 0);
 
 });
-
 readonly monthlyIncome = computed(() => {
 
   const from = this.reportFromDate();
