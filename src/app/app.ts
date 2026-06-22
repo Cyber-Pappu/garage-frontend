@@ -53,6 +53,7 @@ export class App implements OnInit {
 
   // Restock form fields
   readonly formRestockItemName = signal<string>('');
+  readonly formRestockCategory = signal<'Oil' | 'Spare Parts' | 'Others'>('Oil');
   readonly formRestockUnits = signal<number>(1);
   readonly formRestockUnitPrice = signal<number | null>(null);
   readonly formRestockSellingPrice = signal<number | null>(null);
@@ -569,6 +570,7 @@ readonly monthlyIncome = computed(() => {
 
   resetRestockForm() {
     this.formRestockItemName.set('');
+    this.formRestockCategory.set('Oil');
     this.formRestockUnits.set(1);
     this.formRestockUnitPrice.set(null);
     this.formRestockSellingPrice.set(null);
@@ -580,6 +582,7 @@ readonly monthlyIncome = computed(() => {
 
   saveRestockDetails() {
     const itemName = this.formRestockItemName().trim();
+    const category = this.formRestockCategory();
     const units = Math.max(1, this.formRestockUnits() || 1);
     const unitPrice = this.formRestockUnitPrice() ?? 0;
     const sellingPrice = this.formRestockSellingPrice() ?? 0;
@@ -594,7 +597,7 @@ readonly monthlyIncome = computed(() => {
 
       const payload = {
         part_name: itemName,
-        category: 'Other',
+        category: category,
         quantity: units,
         unit_price: unitPrice,
         selling_price: sellingPrice

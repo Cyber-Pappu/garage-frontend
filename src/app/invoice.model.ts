@@ -44,7 +44,7 @@ export interface ServicePreset {
 export interface SparePart {
   id: string;
   name: string;
-  category: 'Oil' | 'Filter' | 'Fuel' | 'Coolant' | 'Battery' | 'Brake' | 'Suspension' | 'Electrical' | 'Other';
+  category: 'Oil' | 'Spare Parts' | 'Others' | 'Filter' | 'Fuel' | 'Coolant' | 'Battery' | 'Brake' | 'Suspension' | 'Electrical' | 'Other';
   quantity: number;
   reorderLevel: number;
   unitPrice: number;
